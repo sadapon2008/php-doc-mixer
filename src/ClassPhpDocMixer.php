@@ -34,9 +34,6 @@ class ClassPhpDocMixer
         } catch (Error $e) {
              false;
         }
-        if (!isset($visitor1->comment) || (strlen($visitor1->comment) == 0)) {
-            return false;
-        }
 
         $traverser2 = new NodeTraverser();
         $visitor2 = new ClassPhpDocMixerVisitor();
@@ -50,8 +47,17 @@ class ClassPhpDocMixer
             return false;
         }
 
-        $out = PhpDocMixer::mix($visitor1->comment, $visitor2->comment);
-        $res = str_replace($visitor1->comment, $out, $code1);
+        $comment1 = $visitor1->comment;
+        if (($comment1 === null) || (strlen($comment1) == 0)) {
+            $comment1 = "/**\n *\n */\n";
+        }
+        $out = PhpDocMixer::mix($comment1, $visitor2->comment);
+        if (isset($visitor1->comment) && (strlen($visitor1->comment) > 0)) {
+            $res = str_replace($visitor1->comment, $out, $code1);
+        } else {
+            //$res = preg_replace('/^\(\s*class\s+\)/u', $out . '${1}', $code1, 1);
+            $res = preg_replace('/(\s*)(class)/u', '${1}' . $out . '${2}', $code1, 1);
+        }
         return $res;
     }
 }

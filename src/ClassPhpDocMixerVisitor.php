@@ -12,7 +12,10 @@ class ClassPhpDocMixerVisitor extends NodeVisitorAbstract
         
     public function leaveNode(Node $node) {
         if ($node instanceof Class_) {
-            $this->comment = $node->getDocComment()->getText();
+            $c = $node->getDocComment();
+            if (!empty($c)) {
+                $this->comment = $node->getDocComment()->getText();
+            }
         }
     }
 }
